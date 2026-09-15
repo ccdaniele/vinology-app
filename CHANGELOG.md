@@ -4,6 +4,11 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 
 ## [Unreleased]
 
+### Phase 2 — Next.js client
+
+- New `vinology-web` App Router + TypeScript UI (auth, queries, VIN report, PDF)
+- Typed `api` client against the Rails API; CRA client marked legacy
+
 ### Phase 1 — Rails foundation
 
 - Ruby **3.3** / Rails **7.2**, PostgreSQL (`pg`), `load_defaults 7.2`
@@ -18,7 +23,7 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 - Stop serializing passwords; remove public user listing and brand-code searcher
 - Client `apiFetch` helper sends Bearer tokens; fix broken API URLs / query list shape
 
-Planned refresh (target `v2.0.0`): Next.js + TypeScript client, free NHTSA VIN data, PDF export retained.
+Planned refresh (target `v2.0.0`): free NHTSA VIN data on the server, UI polish.
 
 ## [1.1.4] - 2026-09-15
 

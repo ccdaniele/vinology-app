@@ -33,7 +33,8 @@ Auth, queries, cars, and PDF export talk to the real Rails API.
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React 17, Redux, React Router, Bootstrap, jsPDF (Next.js refresh planned) |
+| Frontend (current) | **Next.js 15 + TypeScript** (`vinology-web`, port 3001) |
+| Frontend (legacy) | React 17 CRA (`Vinology-client`) — kept for reference |
 | Backend | Rails **7.2** API (Ruby **3.3**), JWT, PORO JSON serializers |
 | Database | **PostgreSQL** (Postgres.app / Homebrew / Docker Compose) |
 | Packaging | Docker / Compose; also deployable via [vinology-kubernetes](https://github.com/ccdaniele/vinology-kubernetes) |
@@ -41,8 +42,9 @@ Auth, queries, cars, and PDF export talk to the real Rails API.
 ## Project layout
 
 ```text
-Vinology-client/   React SPA (port 3001)
-Vinology-server/   Rails API (port 3000)
+vinology-web/       Next.js + TypeScript SPA (port 3001) — primary UI
+Vinology-server/    Rails API (port 3000)
+Vinology-client/    Legacy CRA client (deprecated)
 ```
 
 ## Prerequisites
@@ -50,7 +52,7 @@ Vinology-server/   Rails API (port 3000)
 - Ruby **3.3.x** (see `Vinology-server/.ruby-version`)
 - Bundler
 - PostgreSQL running on `localhost:5432` (Postgres.app 18+ or Homebrew)
-- Node.js for the legacy CRA client
+- Node.js 20+ for `vinology-web`
 
 ## Run locally
 
@@ -71,18 +73,18 @@ Demo seed user: `demo` / `password`
 bin/rails test   # auth + ownership smoke tests
 ```
 
-### Frontend
+### Frontend (Next.js)
 
 ```bash
-cd Vinology-client
-cp .env.example .env.development
+cd vinology-web
+cp .env.example .env.local
 npm install
-npm start
+npm run dev
 ```
 
-See `.env.example` for API host/port defaults (`127.0.0.1:3000`, client on `3001`).
-
 Open http://localhost:3001
+
+See `.env.example` for `NEXT_PUBLIC_API_BASE_URL` (defaults to `http://127.0.0.1:3000/api/v1`).
 
 ## Run with Docker
 
