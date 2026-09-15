@@ -9,6 +9,7 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 - Server-side VIN decode via free NHTSA vPIC + recalls / complaints count / safety ratings
 - Authenticated `POST /api/v1/vin_lookups` with per-user rate limiting
 - Next.js client uses live decode (mock VIN helper removed)
+- Persist full report payload on save so reopened cars and PDFs match the live report
 
 ### Phase 2 — Next.js client
 
