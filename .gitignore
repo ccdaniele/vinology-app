@@ -21,6 +21,7 @@ dist/
 # Ruby / Rails
 .bundle/
 vendor/bundle/
+Vinology-server/vendor/
 log/
 tmp/
 storage/

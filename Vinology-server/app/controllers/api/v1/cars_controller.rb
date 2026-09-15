@@ -3,11 +3,11 @@ class Api::V1::CarsController < ApplicationController
 
   def index
     cars = Car.joins(:query).where(queries: { user_id: current_user.id })
-    render json: cars
+    render json: cars.map { |car| CarSerializer.new(car) }
   end
 
   def show
-    render json: @car
+    render json: CarSerializer.new(@car)
   end
 
   def create
@@ -19,7 +19,7 @@ class Api::V1::CarsController < ApplicationController
     car = query.cars.build(car_params.except(:query_id))
 
     if car.save
-      render json: car, status: :created
+      render json: CarSerializer.new(car), status: :created
     else
       render json: { error: car.errors.full_messages }, status: :unprocessable_entity
     end

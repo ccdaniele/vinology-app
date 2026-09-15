@@ -10,7 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_01_103005) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_15_220000) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "cars", force: :cascade do |t|
     t.integer "query_id"
@@ -35,15 +37,18 @@ ActiveRecord::Schema.define(version: 2021_04_01_103005) do
     t.string "adjustedAverageTrade"
     t.string "averageMileage"
     t.string "maxMileageAdj"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["query_id"], name: "index_cars_on_query_id"
+    t.index ["vin_number"], name: "index_cars_on_vin_number"
   end
 
   create_table "queries", force: :cascade do |t|
     t.string "name"
     t.integer "user_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_queries_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -51,8 +56,8 @@ ActiveRecord::Schema.define(version: 2021_04_01_103005) do
     t.string "email"
     t.string "username"
     t.string "password_digest"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
-
 end
