@@ -5,11 +5,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { downloadSpecPdf } from '@/lib/pdf'
-import type { VehicleSpecification } from '@/lib/types'
+import type { VinLookupReport } from '@/lib/types'
+import { VehicleReportView } from '@/components/VehicleReportView'
 
-type ReportPayload = {
+type ReportPayload = VinLookupReport & {
   queryId: number
-  specification: VehicleSpecification
 }
 
 export default function ReportPage() {
@@ -38,6 +38,15 @@ export default function ReportPage() {
     setError('')
     try {
       const s = payload.specification
+      const reportPayload: VinLookupReport = {
+        specification: s,
+        recalls: payload.recalls || [],
+        complaints_count: payload.complaints_count || 0,
+        safety_ratings: payload.safety_ratings || [],
+        source: payload.source || 'nhtsa',
+        decode_message: payload.decode_message || '',
+      }
+
       await api.createCar({
         query_id: payload.queryId,
         vin_number: s.vin,
@@ -53,6 +62,7 @@ export default function ReportPage() {
         transmission: s.transmission,
         drive_type: s.drive_type,
         engine: s.engine,
+        report_payload: reportPayload,
       })
       setSaved(true)
       sessionStorage.removeItem('vinology_report')
@@ -78,68 +88,44 @@ export default function ReportPage() {
     )
   }
 
-  const s = payload!.specification
+  const report = payload!
 
   return (
-    <section className="rise" style={{ display: 'grid', gap: '1.25rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-        <div>
-          <h1 className="font-display" style={{ margin: 0, fontSize: '2rem' }}>
-            {s.year} {s.make}
-          </h1>
-          <p style={{ margin: '0.35rem 0 0' }}>{s.model}</p>
-        </div>
-        <div className="vin-plate font-mono">{s.vin}</div>
-      </div>
-
-      {error ? <p className="error">{error}</p> : null}
-      {saved ? <p className="panel">Saved to your query.</p> : null}
-
-      <div className="panel" style={{ display: 'grid', gap: '0.65rem' }}>
-        {[
-          ['Trim', s.trim_level],
-          ['Engine', s.engine],
-          ['Transmission', s.transmission],
-          ['Drive', s.drive_type],
-          ['ABS', s.anti_brake_system],
-          ['Seating', s.standard_seating],
-          ['City MPG', s.city_mileage],
-          ['Highway MPG', s.highway_mileage],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '9rem 1fr',
-              gap: '0.75rem',
-              borderBottom: '1px solid var(--line)',
-              paddingBottom: '0.45rem',
-            }}
-          >
-            <span className="muted">{label}</span>
-            <span>{value || '—'}</span>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <button type="button" className="btn" onClick={saveCar} disabled={saving || saved}>
-          {saved ? 'Saved' : saving ? 'Saving…' : 'Save to query'}
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={() => downloadSpecPdf(s)}>
-          Download PDF
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          onClick={() => router.push(`/cars/new?queryId=${payload!.queryId}`)}
-        >
-          Another VIN
-        </button>
-        <Link href="/queries" className="btn btn-ghost">
-          My queries
-        </Link>
-      </div>
-    </section>
+    <>
+      {error ? <p className="error" style={{ marginBottom: '1rem' }}>{error}</p> : null}
+      {saved ? <p className="panel" style={{ marginBottom: '1rem' }}>Saved to your query.</p> : null}
+      <VehicleReportView
+        report={report}
+        actions={
+          <>
+            <button type="button" className="btn" onClick={saveCar} disabled={saving || saved}>
+              {saved ? 'Saved' : saving ? 'Saving…' : 'Save to query'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() =>
+                downloadSpecPdf(report.specification, {
+                  recalls: report.recalls,
+                  complaintsCount: report.complaints_count,
+                })
+              }
+            >
+              Download PDF
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => router.push(`/cars/new?queryId=${report.queryId}`)}
+            >
+              Another VIN
+            </button>
+            <Link href="/queries" className="btn btn-ghost">
+              My queries
+            </Link>
+          </>
+        }
+      />
+    </>
   )
 }

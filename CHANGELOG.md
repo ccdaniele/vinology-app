@@ -4,6 +4,13 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 
 ## [Unreleased]
 
+### Phase 3 — live NHTSA VIN data
+
+- Server-side VIN decode via free NHTSA vPIC + recalls / complaints count / safety ratings
+- Authenticated `POST /api/v1/vin_lookups` with per-user rate limiting
+- Next.js client uses live decode (mock VIN helper removed)
+- Persist full report payload on save so reopened cars and PDFs match the live report
+
 ### Phase 2 — Next.js client
 
 - New `vinology-web` App Router + TypeScript UI (auth, queries, VIN report, PDF)
@@ -23,7 +30,7 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 - Stop serializing passwords; remove public user listing and brand-code searcher
 - Client `apiFetch` helper sends Bearer tokens; fix broken API URLs / query list shape
 
-Planned refresh (target `v2.0.0`): free NHTSA VIN data on the server, UI polish.
+Planned next (target `v2.0.0`): UI polish, Docker one-command demo, deploy story.
 
 ## [1.1.4] - 2026-09-15
 

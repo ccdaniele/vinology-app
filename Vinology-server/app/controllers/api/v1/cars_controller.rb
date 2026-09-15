@@ -40,7 +40,7 @@ class Api::V1::CarsController < ApplicationController
   end
 
   def car_params
-    params.require(:car).permit(
+    permitted = params.require(:car).permit(
       :query_id,
       :vin_number,
       :model,
@@ -64,5 +64,19 @@ class Api::V1::CarsController < ApplicationController
       :averageMileage,
       :maxMileageAdj
     )
+
+    raw_payload = params[:car][:report_payload]
+    if raw_payload.present?
+      permitted[:report_payload] =
+        if raw_payload.respond_to?(:to_unsafe_h)
+          raw_payload.to_unsafe_h
+        elsif raw_payload.respond_to?(:to_h)
+          raw_payload.to_h
+        else
+          raw_payload
+        end
+    end
+
+    permitted
   end
 end

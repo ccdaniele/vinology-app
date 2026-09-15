@@ -11,3 +11,5 @@ npm run dev
 Open http://localhost:3001
 
 Requires the Rails API on port 3000 (`Vinology-server`).
+
+VIN decode calls `POST /api/v1/vin_lookups` (NHTSA vPIC + recalls / ratings).
