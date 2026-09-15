@@ -29,14 +29,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="shell" style={{ maxWidth: 460, paddingBlock: '4rem' }}>
+    <main id="main" className="shell" style={{ maxWidth: 460, paddingBlock: '4rem' }}>
       <Link href="/" className="font-display" style={{ fontSize: '1.5rem' }}>
         Vinology
       </Link>
       <h1 style={{ marginTop: '1.5rem', fontSize: '1.75rem' }}>Sign in</h1>
-      <p className="muted">Use your account or the demo seed user.</p>
-      <form onSubmit={onSubmit} className="panel rise" style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem' }}>
-        {error ? <p className="error">{error}</p> : null}
+      <p className="muted">Use your account or the demo seed user (<code>demo</code> / <code>password</code>).</p>
+      <form
+        onSubmit={onSubmit}
+        className="panel rise"
+        style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem' }}
+        aria-busy={loading}
+      >
+        {error ? <p className="error" role="alert">{error}</p> : null}
         <div className="field">
           <label htmlFor="username">Username</label>
           <input
@@ -65,6 +70,6 @@ export default function LoginPage() {
       <p className="muted" style={{ marginTop: '1rem' }}>
         No account? <Link href="/register">Create one</Link>
       </p>
-    </div>
+    </main>
   )
 }

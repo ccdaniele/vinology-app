@@ -4,6 +4,13 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 
 ## [Unreleased]
 
+### Phase 4 — polish
+
+- Root `docker compose up --build` (Postgres + Rails API + Next.js UI)
+- README rewrite: Docker-first quick start + deploy story
+- Accessibility pass: skip link, landmarks, `aria-current` / `role="alert"` / busy forms
+- Next.js `output: 'standalone'` for container builds
+
 ### Phase 3 — live NHTSA VIN data
 
 - Server-side VIN decode via free NHTSA vPIC + recalls / complaints count / safety ratings
@@ -29,8 +36,6 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 - JWT secret from `JWT_SECRET` (with expiry); CORS allowlist via `CORS_ORIGINS`
 - Stop serializing passwords; remove public user listing and brand-code searcher
 - Client `apiFetch` helper sends Bearer tokens; fix broken API URLs / query list shape
-
-Planned next (target `v2.0.0`): UI polish, Docker one-command demo, deploy story.
 
 ## [1.1.4] - 2026-09-15
 

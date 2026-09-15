@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function LandingPage() {
   return (
-    <div className="shell" style={{ minHeight: '100vh', display: 'grid', alignContent: 'center', gap: '2rem', paddingBlock: '3rem' }}>
+    <main id="main" className="shell" style={{ minHeight: '100vh', display: 'grid', alignContent: 'center', gap: '2rem', paddingBlock: '3rem' }}>
       <p className="muted rise" style={{ letterSpacing: '0.14em', textTransform: 'uppercase', fontSize: '0.78rem' }}>
         VIN research desk
       </p>
@@ -10,7 +10,7 @@ export default function LandingPage() {
         Vinology
       </h1>
       <p className="rise rise-delay muted" style={{ maxWidth: '36rem', fontSize: '1.1rem', lineHeight: 1.6 }}>
-        Look up a vehicle by VIN, keep research in named queries, and export a clean PDF report.
+        Look up a vehicle by VIN with free NHTSA data, keep research in named queries, and export a PDF report.
       </p>
       <div className="rise rise-delay" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
         <Link href="/login" className="btn">
@@ -20,9 +20,13 @@ export default function LandingPage() {
           Create account
         </Link>
       </div>
-      <div className="rise rise-delay vin-plate font-mono" style={{ marginTop: '1rem', width: 'fit-content' }}>
+      <div
+        className="rise rise-delay vin-plate font-mono"
+        style={{ marginTop: '1rem', width: 'fit-content' }}
+        aria-label="Example VIN"
+      >
         JN8DR09Y82W703284
       </div>
-    </div>
+    </main>
   )
 }
