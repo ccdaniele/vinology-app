@@ -4,6 +4,10 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-15
+
+Full stack refresh for the portfolio demo: hardened Rails API, Next.js UI, live NHTSA VIN data, and a one-command Docker story.
+
 ### Phase 4 — polish
 
 - Root `docker compose up --build` (Postgres + Rails API + Next.js UI)
@@ -28,7 +32,7 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 - Ruby **3.3** / Rails **7.2**, PostgreSQL (`pg`), `load_defaults 7.2`
 - Replace Active Model Serializers with PORO serializers
 - Ownership indexes; Docker Compose wires app → Postgres
-- Integration tests for auth and query/car ownership (15 green)
+- Integration tests for auth and query/car ownership
 
 ### Phase 0 — security stabilize
 
@@ -61,5 +65,6 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 
 - Original stack: Ruby 2.6.8, Rails 6.0, early React client
 
-[Unreleased]: https://github.com/ccdaniele/vinology-app/compare/v1.1.4...HEAD
+[Unreleased]: https://github.com/ccdaniele/vinology-app/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/ccdaniele/vinology-app/compare/v1.1.4...v2.0.0
 [1.1.4]: https://github.com/ccdaniele/vinology-app/releases/tag/v1.1.4
