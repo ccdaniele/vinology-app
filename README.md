@@ -114,7 +114,7 @@ Older Kubernetes notes: [vinology-kubernetes](https://github.com/ccdaniele/vinol
 | Versions | SemVer tags + GitHub Releases |
 
 - Legacy freeze: [`v1.1.4`](https://github.com/ccdaniele/vinology-app/releases/tag/v1.1.4)
-- Refresh milestone: tag **`v2.0.0`** after this Phase 4 PR merges to `main`
+- Refresh milestone: [`v2.0.0`](https://github.com/ccdaniele/vinology-app/releases/tag/v2.0.0) — Next.js + Rails 7.2 + NHTSA + Docker
 
 ## License
 
