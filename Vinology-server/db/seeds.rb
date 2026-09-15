@@ -1,10 +1,15 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-  
-  User.create(email:'first@gmail.com', username:'first', password_digest:'1234567')
-  Query.create(name:'first', user_id:'1')
-  Car.create(vin_number:'868346892346928463877', query_id:'1' )
+# Seed a demo user that can actually log in (uses has_secure_password).
+
+user = User.find_or_create_by!(username: 'demo') do |u|
+  u.email = 'demo@example.com'
+  u.name = 'Demo User'
+  u.password = 'password'
+end
+
+query = user.queries.find_or_create_by!(name: 'Demo query')
+
+query.cars.find_or_create_by!(vin_number: '1HGCM82633A004352') do |car|
+  car.make = 'Honda'
+  car.model = 'Accord'
+  car.year = '2003'
+end

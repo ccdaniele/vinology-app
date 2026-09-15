@@ -1,4 +1,3 @@
-// import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Home from './components/home.component';
 import Nav from './components/nav.component'
@@ -9,13 +8,13 @@ import Queries from './components/queries.component'
 import Login from './components/login.component'
 import NewQuery from './components/newQuery.component'
 import Edit from './components/editQuery.component'
-import Check from './components/check.component'
 import {Route, Switch, withRouter} from 'react-router-dom'
 import Report from './components/report.component';
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {currentUser} from './actions/user.action'
 import {myQueries} from './actions/query.action'
+import {apiFetch} from './api'
 import './index.css';
 
 class App extends Component{
@@ -27,54 +26,38 @@ class App extends Component{
   }
 
   loadMyQueries=()=>{
-    
-    const queriesArray = []
-    const user = this.props.user.id
-    
-    
-  
-    fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/queries`)
-      .then(resp=>resp.json())
-      .then(data=>{
-     
-       
-        queriesArray.push(data.filter(query=>query.user_id === user))
-            this.props.myQueries(queriesArray) 
-            console.log('queries from app')
-        })
-
-    }
+    apiFetch('/queries')
+      .then(resp => resp.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          this.props.myQueries(data)
+        }
+      })
+      .catch(() => {})
+  }
 
   componentDidMount(){
-
     const token = localStorage.getItem('token')
 
-    if(!token) {this.props.history.push('/login')
-        
-    }else{
+    if(!token) {
+      this.props.history.push('/login')
+      return
+    }
 
-      const reqObj ={
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}` 
-        }
-
-        }
-          
-      fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/current_user`, reqObj)
+    apiFetch('/current_user')
       .then(resp => resp.json())
       .then(data=>{
-        console.log(data,"fetch app")
-                if (data.error){
-                this.props.history.push('/login')
-                }else{
-                 
-                this.props.currentUser(data)
-                this.loadMyQueries()
-                }
-            })
-    }
-   
+        if (data.message || data.error || !data.id){
+          localStorage.removeItem('token')
+          this.props.history.push('/login')
+        }else{
+          this.props.currentUser(data)
+          this.loadMyQueries()
+        }
+      })
+      .catch(() => {
+        this.props.history.push('/login')
+      })
   }
 
 render(){
@@ -86,7 +69,6 @@ render(){
               <Route exact path="/" component={Home}/>
               <Route exact path="/login" component={Login}/>
               <Route exact path="/register" component={Register}/>
-              <Route exact path="/checkcode" component={Check}/>
               <Route exact path="/newcar" component={New}/>
               <Route exact path="/showcar" component={Show}/>
               <Route exact path="/queries" component={Queries}/>
@@ -100,13 +82,11 @@ render(){
 }
 
 const mapDispathToProps ={
-
   currentUser, myQueries
 }
 
 const mapStateToProps = (state)=>{
   return {
-    
       user: state.userData
   }
 }

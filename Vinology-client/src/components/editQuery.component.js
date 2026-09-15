@@ -4,20 +4,17 @@ import '../style.css';
 import {currentUser} from '../actions/user.action'
 import {myQueries} from '../actions/query.action'
 import ClimbingBoxLoader from "react-spinners/ClimbingBoxLoader";
-
-
-
+import {apiFetch} from '../api'
 
 class Edit extends Component{
   constructor(){
     super()
     this.state = {
      name:"",
-     loading: false
+     loading: false,
+     error: ''
     }
   }
-
-
 
   handleLoading=()=>{
     this.setState({loading:true})
@@ -30,36 +27,22 @@ class Edit extends Component{
  }
 
  loadMyQueries=()=>{
-    
-  const queriesArray = []
-  const user = this.props.user.id
-  
-  
-
-  fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/queries`)
+  apiFetch('/queries')
     .then(resp=>resp.json())
     .then(data=>{
-   
-     
-      queriesArray.push(data.filter(query=>query.user_id === user))
-          this.props.myQueries(queriesArray) 
-  console.log('queries from queries')
-      })
-
+      if (Array.isArray(data)) {
+        this.props.myQueries(data)
+      }
+    })
+    .catch(() => {})
   }
 
   handleEdit=(e)=>{
-
     e.preventDefault()
-
-
-    const queryId =this.props.location.state
+    const queryId = this.props.location.state
 
         const newObj ={
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({
             query: {
                 name: this.state.name
@@ -67,29 +50,30 @@ class Edit extends Component{
           })
         }
     
-        fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/queries/${queryId}`,newObj)
-        .then(resp=>resp.json())
-        .then(data=>{
-    
-          console.log(data)
+        apiFetch(`/queries/${queryId}`, newObj)
+        .then(resp=>resp.json().then(data => ({ ok: resp.ok, data })))
+        .then(({ ok, data })=>{
+          if (!ok) {
+            const message = Array.isArray(data.error) ? data.error.join(', ') : (data.error || 'Failed to update query')
+            this.setState({ error: message })
+            return
+          }
           this.handleLoading()
           this.loadMyQueries()
-    
         })
-
+        .catch(() => {
+          this.setState({ error: 'Unable to update query. Please try again.' })
+        })
   }
 
-  
-
   render(){
-   
-   
       return (
 
 <div className="wrapper">
         
         {!this.state.loading?
           <div className="inner">
+          {this.state.error ? <p style={{color:'white'}}>{this.state.error}</p> : null}
           <form onSubmit={this.handleEdit}>
           <label className="form-text"></label>
             <div className='form-group'>
@@ -129,4 +113,3 @@ const mapDispathToProps ={
 }
 
 export default connect (mapStateToProps, mapDispathToProps)(Edit)
-

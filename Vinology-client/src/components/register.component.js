@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {apiFetch} from '../api'
 
 export default class Register extends Component {
     constructor(){
@@ -8,12 +9,18 @@ export default class Register extends Component {
             username:'',
             email:'',
             password:'',
-            passwordConfirm:''
+            passwordConfirm:'',
+            error: ''
         }
     }
 
     handleSubmit = (e) =>{
         e.preventDefault()
+
+        if (this.state.password !== this.state.passwordConfirm) {
+          this.setState({ error: 'Passwords do not match' })
+          return
+        }
 
         const newObj ={
             method: 'POST',
@@ -25,15 +32,24 @@ export default class Register extends Component {
               user: {
                 username: this.state.username,
                 email: this.state.email,
-                password: this.state.password,
-                password_confirm: this.state.passwordConfirm
+                password: this.state.password
               }
             })
           }
        
-        fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/users`, newObj )
-            .then(r => r.json())
-            this.props.history.push('/login')
+        apiFetch('/users', newObj)
+            .then(r => r.json().then(data => ({ ok: r.ok, data })))
+            .then(({ ok, data }) => {
+              if (!ok) {
+                const message = Array.isArray(data.error) ? data.error.join(', ') : (data.error || 'Failed to create user')
+                this.setState({ error: message })
+                return
+              }
+              this.props.history.push('/login')
+            })
+            .catch(() => {
+              this.setState({ error: 'Unable to register. Please try again.' })
+            })
         }
 
     render(){
@@ -48,6 +64,7 @@ export default class Register extends Component {
             <div className='body-login2'>
             <div className="wrapper">
             <div className="inner-sign-up">
+            {this.state.error ? <h4 style={{color:'white'}}>{this.state.error}</h4> : null}
             <form onSubmit={this.handleSubmit}>
                <p id='logoNav' style={size}></p> 
                <div className='form-group'>

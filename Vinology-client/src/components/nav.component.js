@@ -45,9 +45,6 @@ class Nav extends Component {
                 <Link to={'/queries'} id="form-text" className="nav-link" >My queries</Link>
               </li>
               <li className="nav-item">
-                <Link to={'/checkcode'} id="form-text" className="nav-link" >Check code</Link>
-              </li>
-              <li className="nav-item">
                 <button onClick={this.handleLogOut} className="btn btn-secondary btn-block" >Log out</button>
               </li>
             </ul>

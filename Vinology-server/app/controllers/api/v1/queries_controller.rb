@@ -1,44 +1,44 @@
 class Api::V1::QueriesController < ApplicationController
+  before_action :set_query, only: [:update, :destroy]
 
-    def create
-      query = Query.create(user_id: query_params[:user_id], name: query_params[:name])
-      
-      render json: query, status: :accepted
-      
-      
+  def index
+    queries = current_user.queries.includes(:cars)
+    render json: queries
+  end
+
+  def create
+    query = current_user.queries.build(name: query_params[:name])
+
+    if query.save
+      render json: query, status: :created
+    else
+      render json: { error: query.errors.full_messages }, status: :unprocessable_entity
     end
-
-    def index
-      queries = Query.all
-  
-      render json: queries
-    end
-
+  end
 
   def update
-    
-      query = Query.find_by(id: params[:id])
-      
-      query.update(name: query_params[:name])
-
-      render json: query, status: :accepted
+    if @query.update(name: query_params[:name])
+      render json: @query, status: :ok
+    else
+      render json: { error: @query.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def destroy
-
-    query = Query.find_by(id: params[:id])
-    
-    query.delete
-
-    
-
+    @query.destroy
+    head :no_content
   end
 
   private
 
-  def query_params
-    params.require(:query).permit(:user_id, :name)
+  def set_query
+    @query = current_user.queries.find_by(id: params[:id])
+    return if @query
+
+    render json: { error: 'Query not found' }, status: :not_found
   end
 
+  def query_params
+    params.require(:query).permit(:name)
+  end
 end
-

@@ -5,10 +5,7 @@ import {myQueries} from '../actions/query.action'
 import ClimbingBoxLoader from "react-spinners/ClimbingBoxLoader";
 import '../css/queries.css';
 import {currentQuery} from '../actions/car.action'
-
-
-
-
+import {apiFetch} from '../api'
 
 class queries extends Component{
   constructor(){
@@ -21,87 +18,65 @@ class queries extends Component{
   }
 
   loadMyQueries=()=>{
-    
-    const queriesArray = []
-    const user = this.props.user.id
-    
-    
-  
-    fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/queries`)
+    apiFetch('/queries')
       .then(resp=>resp.json())
       .then(data=>{
-     
-       
-        queriesArray.push(data.filter(query=>query.user_id === user))
-            this.props.myQueries(queriesArray) 
-    console.log('queries from queries')
-        })
-
-    }
-  
+        if (Array.isArray(data)) {
+          this.props.myQueries(data)
+        }
+      })
+      .catch(() => {})
+  }
 
   handleLoading=()=>{
     this.setState({loading:true})
      setTimeout(()=>{
        this.setState({loading:false})
      },3000)
-
-    }
-     
+  }
 
   handleDelete=(e)=>{
-
-    
     const query_id = e.target.value
     this.handleLoading()
 
-      fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/queries/${query_id}`,{method: 'DELETE'})
-      
-        this.loadMyQueries()
-        
-        
-    
+    apiFetch(`/queries/${query_id}`, { method: 'DELETE' })
+      .then(() => this.loadMyQueries())
+      .catch(() => this.loadMyQueries())
   }
 
   handleAdd=(e)=>{
     this.props.currentQuery(e.target.value)
-
-    
-
     this.props.history.push('/newcar')
   }
-
 
   handleEdit=(e)=>{
     const query_edit = e.target.value
     this.props.history.push({
       pathname: '/edit', 
       state: query_edit
-      })
+    })
   }
 
   handleOnClick=(e)=>{
-
     const car_id = e.target.value
-
     this.props.history.push({
       pathname: '/showcar', 
       state: car_id
-      })
+    })
   }
 
   render(){
-    
+    const queriesList = Array.isArray(this.props.queries) ? this.props.queries : []
 
       return (
       <div className="wrapper-q" >
       <div className='inner-r'>
        {!this.state.loading?
       <div className='inner-r'>
-        {this.props.queries?
+        {queriesList.length > 0 ?
         <div className='inner'>
-              {this.props.queries[0].map(query=>
-       <div className="firstTernary">
+              {queriesList.map(query=>
+       <div className="firstTernary" key={query.id}>
         <body>
             <div class="container">
                 <div class="card">
@@ -114,9 +89,9 @@ class queries extends Component{
                     <div class="face face2">
                         <div class="content">
                         <div>
-                        {query.cars.map(car=>
+                        {(query.cars || []).map(car=>
 
-                           <button className="btn btn-link" value={car.id} onClick={this.handleOnClick} > {car.model}</button>
+                           <button className="btn btn-link" key={car.id} value={car.id} onClick={this.handleOnClick} > {car.model}</button>
                           
                            )}
                           </div>
@@ -156,4 +131,3 @@ const mapDispathToProps ={
 }
 
 export default connect (mapStateToProps, mapDispathToProps)(queries)
-
