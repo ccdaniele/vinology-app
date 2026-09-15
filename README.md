@@ -94,6 +94,23 @@ Published images used in the Kubernetes experiment: `ccdaniele/vin-client`, `ccd
 
 Dependencies should be installed from the lockfile (`npm install` / `bundle install`), not committed. Local env files, SQLite databases, logs, and Rails secrets belong in `.gitignore`.
 
+## Versioning and releases
+
+This repo follows a lightweight GitHub Flow:
+
+| Practice | Convention |
+|----------|------------|
+| Default branch | `main` |
+| Feature work | Short-lived `feature/*` or `fix/*` branches → pull request into `main` |
+| Versions | [Semantic Versioning](https://semver.org) tags (`vMAJOR.MINOR.PATCH`) |
+| Releases | Annotated git tags + [GitHub Releases](https://github.com/ccdaniele/vinology-app/releases) |
+
+**Legacy freeze:** [`v1.1.4`](https://github.com/ccdaniele/vinology-app/releases/tag/v1.1.4) is the last release of the original CRA + Rails 7 demo stack.
+
+**Next milestone:** `v2.0.0` will mark the first cut of the TypeScript Next.js + hardened Rails refresh.
+
+Do not push directly to `main` (branch protection requires a pull request). Prefer deleting the head branch after merge.
+
 ## License
 
 MIT. Sole author: Daniel Calderon.
