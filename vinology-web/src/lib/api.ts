@@ -1,5 +1,5 @@
 import { clearToken, getToken } from './auth'
-import type { ApiErrorBody, AuthResponse, Car, Query, User } from './types'
+import type { ApiErrorBody, AuthResponse, Car, Query, User, VinLookupReport } from './types'
 
 function apiBase() {
   return (
@@ -123,5 +123,12 @@ export const api = {
 
   deleteCar(id: number) {
     return request<void>(`/cars/${id}`, { method: 'DELETE' })
+  },
+
+  lookupVin(vin: string) {
+    return request<VinLookupReport>('/vin_lookups', {
+      method: 'POST',
+      body: JSON.stringify({ vin }),
+    })
   },
 }

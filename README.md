@@ -25,9 +25,9 @@ The UI is built around lookup types for vehicle research:
 | Vehicle background / history | Title and odometer history (sample data today) |
 | Market value | Retail, trade, and auction-style values (sample data today) |
 
-**Today the client uses sample responses** so the product flow can be demoed without live API keys. The refresh roadmap replaces samples with free NHTSA APIs.
+**Today VIN lookups use free NHTSA APIs** (vPIC specs, recalls, complaint counts, and safety ratings when available). Title/history/market value remain out of scope without paid NMVTIS providers.
 
-Auth, queries, cars, and PDF export talk to the real Rails API.
+Auth, queries, cars, VIN decode, and PDF export talk to the Rails API.
 
 ## Stack
 
