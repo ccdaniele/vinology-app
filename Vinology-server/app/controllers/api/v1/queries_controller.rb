@@ -3,14 +3,14 @@ class Api::V1::QueriesController < ApplicationController
 
   def index
     queries = current_user.queries.includes(:cars)
-    render json: queries
+    render json: queries.map { |query| QuerySerializer.new(query) }
   end
 
   def create
     query = current_user.queries.build(name: query_params[:name])
 
     if query.save
-      render json: query, status: :created
+      render json: QuerySerializer.new(query), status: :created
     else
       render json: { error: query.errors.full_messages }, status: :unprocessable_entity
     end
@@ -18,7 +18,7 @@ class Api::V1::QueriesController < ApplicationController
 
   def update
     if @query.update(name: query_params[:name])
-      render json: @query, status: :ok
+      render json: QuerySerializer.new(@query), status: :ok
     else
       render json: { error: @query.errors.full_messages }, status: :unprocessable_entity
     end

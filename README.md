@@ -33,9 +33,9 @@ Auth, queries, cars, and PDF export talk to the real Rails API.
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React 17, Redux, React Router, Bootstrap, jsPDF |
-| Backend | Rails 7 API (Ruby 3.1.2), JWT, Active Model Serializers |
-| Database | SQLite locally (Postgres available via Docker Compose) |
+| Frontend | React 17, Redux, React Router, Bootstrap, jsPDF (Next.js refresh planned) |
+| Backend | Rails **7.2** API (Ruby **3.3**), JWT, PORO JSON serializers |
+| Database | **PostgreSQL** (Postgres.app / Homebrew / Docker Compose) |
 | Packaging | Docker / Compose; also deployable via [vinology-kubernetes](https://github.com/ccdaniele/vinology-kubernetes) |
 
 ## Project layout
@@ -45,6 +45,13 @@ Vinology-client/   React SPA (port 3001)
 Vinology-server/   Rails API (port 3000)
 ```
 
+## Prerequisites
+
+- Ruby **3.3.x** (see `Vinology-server/.ruby-version`)
+- Bundler
+- PostgreSQL running on `localhost:5432` (Postgres.app 18+ or Homebrew)
+- Node.js for the legacy CRA client
+
 ## Run locally
 
 ### Backend
@@ -52,12 +59,17 @@ Vinology-server/   Rails API (port 3000)
 ```bash
 cd Vinology-server
 cp .env.example .env   # set JWT_SECRET / CORS_ORIGINS
+# Postgres.app: leave DB_USERNAME/DB_PASSWORD unset (uses your macOS user)
 bundle install
-bin/rails db:create db:migrate db:seed
+bin/rails db:prepare db:seed
 bin/rails s
 ```
 
 Demo seed user: `demo` / `password`
+
+```bash
+bin/rails test   # auth + ownership smoke tests
+```
 
 ### Frontend
 

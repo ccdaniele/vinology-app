@@ -4,6 +4,13 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 
 ## [Unreleased]
 
+### Phase 1 — Rails foundation
+
+- Ruby **3.3** / Rails **7.2**, PostgreSQL (`pg`), `load_defaults 7.2`
+- Replace Active Model Serializers with PORO serializers
+- Ownership indexes; Docker Compose wires app → Postgres
+- Integration tests for auth and query/car ownership (15 green)
+
 ### Phase 0 — security stabilize
 
 - Default-deny JWT auth; scope queries/cars to the current user
@@ -11,7 +18,7 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 - Stop serializing passwords; remove public user listing and brand-code searcher
 - Client `apiFetch` helper sends Bearer tokens; fix broken API URLs / query list shape
 
-Planned refresh (target `v2.0.0`): Next.js + TypeScript client, hardened Rails API, free NHTSA VIN data, PDF export retained.
+Planned refresh (target `v2.0.0`): Next.js + TypeScript client, free NHTSA VIN data, PDF export retained.
 
 ## [1.1.4] - 2026-09-15
 

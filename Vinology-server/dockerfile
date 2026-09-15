@@ -1,8 +1,19 @@
-FROM ruby:3.1.2
-WORKDIR /Vinology-server
-COPY . . 
-ENV BUNDLE_PATH /gems
-RUN bundle install
-ENTRYPOINT [ "bin/rails" ]
-CMD ["s", "-b", "0.0.0.0"]
+FROM ruby:3.3.6-slim
+
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential libpq-dev curl bash && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ENV BUNDLE_PATH=/usr/local/bundle \
+    RAILS_LOG_TO_STDOUT=true
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install --jobs 4
+
+COPY . .
+
 EXPOSE 3000
+
+CMD ["bash", "-c", "bin/rails db:prepare && bin/rails s -b 0.0.0.0 -p 3000"]

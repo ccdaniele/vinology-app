@@ -13,7 +13,7 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def show
-    render json: current_user
+    render json: UserSerializer.new(current_user)
   end
 
   private

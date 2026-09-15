@@ -1,21 +1,40 @@
-version: '3.8'
-
 services:
-    web:
-        build: .
-        image: vinology-server
-        restart: "no"
-        ports:
-            - 3000:3000
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: vinology_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vinology_development"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-    postgresql:
-        image: postgres
-        restart: "no"
-        ports:
-            - 5432:5432
-        environment:
-            POSTGRES_DB: docker_rails_development
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: password
-        volumes:
-            - postgresdb:/var/lib/postgresql/data/
+  web:
+    build: .
+    image: vinology-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://postgres:password@db:5432/vinology_development
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_NAME: vinology_development
+      JWT_SECRET: development_docker_jwt_secret_change_me
+      CORS_ORIGINS: http://localhost:3001,http://127.0.0.1:3001
+    depends_on:
+      db:
+        condition: service_healthy
+    command: bash -c "bin/rails db:prepare && bin/rails s -b 0.0.0.0"
+
+volumes:
+  postgres_data:

@@ -1,5 +1,16 @@
-class UserSerializer < ActiveModel::Serializer
-  attributes :id, :name, :username, :email
-  has_many :queries
-  has_many :cars, through: :queries
+# frozen_string_literal: true
+
+class UserSerializer
+  def initialize(user)
+    @user = user
+  end
+
+  def as_json(*)
+    {
+      id: @user.id,
+      name: @user.name,
+      username: @user.username,
+      email: @user.email
+    }
+  end
 end
