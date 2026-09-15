@@ -1,21 +1,14 @@
-function query(state=null, action){
+function query(state = [], action){
     switch(action.type){
-
-        
-
         case 'MY_QUERIES':
-        return action.queries
+          return Array.isArray(action.queries) ? action.queries : []
 
-        case 'LOGIN_OUT':    
-        return {}
-
+        case 'LOGIN_OUT':
+          return []
 
         default:
-
-        return state
-
+          return state
     }
 }
-
 
 export default query

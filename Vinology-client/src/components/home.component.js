@@ -40,7 +40,7 @@ import '../css/home.css'
                     <div>
                         <div>
                         <ul id='homeButton'>
-                            <p><Link to={'/newQuery'} className="button" id="red" >Create a new Query</Link></p>
+                            <p><Link to={'/newquery'} className="button" id="red" >Create a new Query</Link></p>
                             <p><Link to={'/queries'} className="buttonB" >Check my queries</Link></p>
                         </ul>   
                         </div>

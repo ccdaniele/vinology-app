@@ -6,6 +6,7 @@ import jsPDF from 'jspdf'
 import React from 'react'
 import {myQueries} from '../actions/query.action'
 import ClimbingBoxLoader from "react-spinners/ClimbingBoxLoader";
+import {apiFetch} from '../api'
 
 
 
@@ -66,22 +67,14 @@ class Report extends React.Component{
      }
   
     loadMyQueries=()=>{
-    
-        const queriesArray = []
-        const user = this.props.user.id
-        
-        
-      
-        fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/queries`)
+        apiFetch('/queries')
           .then(resp=>resp.json())
           .then(data=>{
-         
-           
-            queriesArray.push(data.filter(query=>query.user_id === user))
-                this.props.myQueries(queriesArray) 
-
-            })
-    
+            if (Array.isArray(data)) {
+              this.props.myQueries(data)
+            }
+          })
+          .catch(() => {})
         }
 
         goBack=()=>{
@@ -94,9 +87,6 @@ class Report extends React.Component{
 
         const newObj ={
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
             body: JSON.stringify({
               car: {query_id: query_id,
                 vin_number:this.props.location.specifications.specification.vin,
@@ -118,17 +108,13 @@ class Report extends React.Component{
             })
           }
       
-          fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/cars`, newObj )
+          apiFetch('/cars', newObj )
           .then(resp => resp.json())
-          .then(q=> {
-
-            
-
+          .then(()=> {
             this.handleLoading()
             this.loadMyQueries()
-            
-
-          }) 
+          })
+          .catch(() => {})
 
     }
     render(){

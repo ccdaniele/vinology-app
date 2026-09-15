@@ -3,78 +3,61 @@ import {connect} from 'react-redux';
 import {myQueries} from '../actions/query.action'
 import { Card, ListGroupItem, ListGroup } from 'react-bootstrap'; 
 import jsPDF from 'jspdf'
+import {apiFetch} from '../api'
 
 class Show extends React.Component{
     constructor(){
         super()
         this.state={
-            car: []
+            car: {}
         }
         
     }
 
     jsPDFGenerator=()=>{
-
-
-       
-        
+        const car = this.state.car
         var doc = new jsPDF('p','pt');
 
         doc.text(20,30,'General Specifications')
-        doc.text(20,60, `Model: ${this.state.model}`)
-        doc.text(20,90,`Year: ${this.state.year}`)
-        doc.text(20,120,`Make: ${this.state.make}`)
-        doc.text(20,150,`Trim: ${this.state.trim_level}`)
-        doc.text(20,180,`Standard Seating: ${this.state.standard_seating}`)
+        doc.text(20,60, `Model: ${car.model || ''}`)
+        doc.text(20,90,`Year: ${car.year || ''}`)
+        doc.text(20,120,`Make: ${car.make || ''}`)
+        doc.text(20,150,`Trim: ${car.trim_level || ''}`)
+        doc.text(20,180,`Standard Seating: ${car.standard_seating || ''}`)
         doc.text(20,210,`Fuel Specifications`)
-        doc.text(20,240,`Highway Mileage: ${this.state.highway_mileage}`)
-        doc.text(20,270,`city_mileage:  ${this.state.city_mileage}`)
-        doc.text(20,300,`Tank size: ${this.state.tank_size}`)
+        doc.text(20,240,`Highway Mileage: ${car.highway_mileage || ''}`)
+        doc.text(20,270,`city_mileage:  ${car.city_mileage || ''}`)
+        doc.text(20,300,`Tank size: ${car.tank_size || ''}`)
         doc.text(20,330,'Mechanical ')
-        doc.text(20,360,`Anti Brake System: ${this.state.anti_brake_system}`)
-        doc.text(20,390,`Transmission: ${this.state.transmission}`)
-        doc.text(20,420,`Type: ${this.state.drive_type}`)
-        doc.text(20,450,`Engine: ${this.state.engine}`)
+        doc.text(20,360,`Anti Brake System: ${car.anti_brake_system || ''}`)
+        doc.text(20,390,`Transmission: ${car.transmission || ''}`)
+        doc.text(20,420,`Type: ${car.drive_type || ''}`)
+        doc.text(20,450,`Engine: ${car.engine || ''}`)
  
         doc.setFont('courier');
-       
- 
         doc.save('document.pdf')
- 
- 
- 
      }
 
-    handleDelete=(e)=>{
-
-    
+    handleDelete=()=>{
         const car_id = this.props.location.state
     
-          fetch(`${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/cars/${car_id}`,{method: 'DELETE'})
-          .then(rsp => rsp.json())
-          .then(data=>{
-
-
-
-        
-          
-          
-          
-        
-    })
-    this.props.history.push('/queries')
-    
+          apiFetch(`/cars/${car_id}`,{method: 'DELETE'})
+          .finally(() => {
+            this.props.history.push('/queries')
+          })
 }
     
     componentDidMount(){
     const car_id =  this.props.location.state
         
-    fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/cars/${car_id}`)
+    apiFetch(`/cars/${car_id}`)
       .then(resp=>resp.json())
       .then(data=>{
-          this.setState({car:data})
-          
+          if (data && data.id) {
+            this.setState({car:data})
+          }
       })
+      .catch(() => {})
 
     }
 
@@ -126,4 +109,3 @@ const mapStateToProps = (state)=>{
   }
   
   export default connect (mapStateToProps, mapDispathToProps)(Show)
-

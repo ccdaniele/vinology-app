@@ -14,20 +14,18 @@ Demo: https://youtu.be/oEXVyASkCEE
 - Create, edit, and delete **queries** (research sessions)
 - Add vehicles to a query by VIN
 - Review a report and download it as PDF
-- Look up brand / title codes in the code searcher
 
 ## VIN data integrations
 
-The UI is built around four lookup types:
+The UI is built around lookup types for vehicle research:
 
 | Lookup | Purpose |
 |--------|---------|
 | Specifications | Make, model, year, engine, drivetrain, and related attributes |
-| Vehicle background / history | Title and odometer history |
-| Market value | Retail, trade, and auction-style values |
-| Salvage / brands | Brand codes and salvage-related status |
+| Vehicle background / history | Title and odometer history (sample data today) |
+| Market value | Retail, trade, and auction-style values (sample data today) |
 
-**Today the client uses sample responses** so the product flow can be demoed without live API keys. The same client hooks (`getSpecifications`, `getHistory`, `getValue`, `getSalvage`) are where real VIN data providers would plug in.
+**Today the client uses sample responses** so the product flow can be demoed without live API keys. The refresh roadmap replaces samples with free NHTSA APIs.
 
 Auth, queries, cars, and PDF export talk to the real Rails API.
 
@@ -53,10 +51,13 @@ Vinology-server/   Rails API (port 3000)
 
 ```bash
 cd Vinology-server
+cp .env.example .env   # set JWT_SECRET / CORS_ORIGINS
 bundle install
 bin/rails db:create db:migrate db:seed
 bin/rails s
 ```
+
+Demo seed user: `demo` / `password`
 
 ### Frontend
 

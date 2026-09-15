@@ -4,6 +4,13 @@ All notable versions of Vinology are recorded here. The source of truth for publ
 
 ## [Unreleased]
 
+### Phase 0 — security stabilize
+
+- Default-deny JWT auth; scope queries/cars to the current user
+- JWT secret from `JWT_SECRET` (with expiry); CORS allowlist via `CORS_ORIGINS`
+- Stop serializing passwords; remove public user listing and brand-code searcher
+- Client `apiFetch` helper sends Bearer tokens; fix broken API URLs / query list shape
+
 Planned refresh (target `v2.0.0`): Next.js + TypeScript client, hardened Rails API, free NHTSA VIN data, PDF export retained.
 
 ## [1.1.4] - 2026-09-15

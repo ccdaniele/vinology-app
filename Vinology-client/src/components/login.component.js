@@ -3,11 +3,7 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {loginSuccess} from '../actions/user.action'
 import {myQueries} from '../actions/query.action'
-
-
-
-
-
+import {apiFetch} from '../api'
 
  class Login extends Component {
      constructor(){
@@ -22,25 +18,15 @@ import {myQueries} from '../actions/query.action'
         
     }
 
-  
-
     loadMyQueries=()=>{
-    
-    const queriesArray = []
-    const user = this.props.user.id
-    
-    
-  
-    fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}/api/v1/queries`)
-      .then(resp=>resp.json())
-      .then(data=>{
-     
-       
-        queriesArray.push(data.filter(query=>query.user_id === user))
-            this.props.myQueries(queriesArray) 
-    console.log('queries from login')
+      apiFetch('/queries')
+        .then(resp => resp.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            this.props.myQueries(data)
+          }
         })
-
+        .catch(() => {})
     }
 
     handleSubmit = (e) =>{
@@ -61,42 +47,28 @@ import {myQueries} from '../actions/query.action'
 
             this.setState({
               username: '',
-              password: ''
+              password: '',
+              error: ''
             })
 
-        fetch(`http://${process.env.REACT_APP_API_ENDPOINT}:${process.env.REACT_APP_API_PORT}//api/v1/login`, newObj)
-          
+        apiFetch('/login', newObj)
           .then(resp => resp.json())
           .then(data => {
             if (data.message) { 
-              
               this.setState({
                 error: data.message
               })
-              window.location.reload(false);
             } else {
+              localStorage.setItem('token', data.jwt)
               this.props.loginSuccess(data.user)
-             
-      
-
-              this.setState({loginSuccess:data.user,
-            token:data.jwt})
-
-            localStorage.setItem('token',data.jwt)
-          
-            
-            this.loadMyQueries()
-            this.props.history.push('/')
-
+              this.loadMyQueries()
+              this.props.history.push('/')
             }
           })
-
-
+          .catch(() => {
+            this.setState({ error: 'Unable to sign in. Please try again.' })
+          })
       }
-
-
-
-
 
     render(){
      
@@ -154,4 +126,3 @@ const mapDispatchToProps = {
 
 
 export default connect (mapStateToProps, mapDispatchToProps)(Login)
-
