@@ -1,79 +1,77 @@
 # Vinology
 
-Full-stack app for researching a vehicle from its VIN.
+Full-stack VIN research desk: look up a vehicle, save it into named queries, and export a PDF.
 
-A VIN is the vehicle’s permanent identifier. Titles, insurance events, sales, and major repairs often attach to it. Vinology helps you look that information up, organize it into queries, and export a PDF report.
+Uses **free NHTSA open data** for factory specs, recalls, complaint counts, and safety ratings when available. Title/history/market value (Carfax-style) stay out of scope without paid NMVTIS providers.
 
-This is a personal project: a complete product with auth, saved research, reporting, and a path to real VIN data providers.
+Demo (legacy walkthrough): https://youtu.be/oEXVyASkCEE
 
-Demo: https://youtu.be/oEXVyASkCEE
+## Quick start (Docker)
+
+One command from the repo root:
+
+```bash
+docker compose up --build
+```
+
+| Service | URL |
+|---------|-----|
+| UI | http://localhost:3001 |
+| API | http://localhost:3000/health |
+| Postgres | `localhost:5433` (mapped to avoid clashing with Postgres.app on 5432) |
+
+Seed login: **`demo` / `password`**
+
+Stop with `Ctrl-C`, or `docker compose down`.
 
 ## What you can do
 
 - Create an account and sign in (JWT)
-- Create, edit, and delete **queries** (research sessions)
-- Add vehicles to a query by VIN
-- Review a report and download it as PDF
-
-## VIN data integrations
-
-The UI is built around lookup types for vehicle research:
-
-| Lookup | Purpose |
-|--------|---------|
-| Specifications | Make, model, year, engine, drivetrain, and related attributes |
-| Vehicle background / history | Title and odometer history (sample data today) |
-| Market value | Retail, trade, and auction-style values (sample data today) |
-
-**Today VIN lookups use free NHTSA APIs** (vPIC specs, recalls, complaint counts, and safety ratings when available). Title/history/market value remain out of scope without paid NMVTIS providers.
-
-Auth, queries, cars, VIN decode, and PDF export talk to the Rails API.
+- Create, rename, and delete **queries** (research folders)
+- Decode a VIN via NHTSA (server-side)
+- Review specs, recalls, and safety snapshot
+- Save the full report and download a PDF
 
 ## Stack
 
 | Layer | Tech |
 |-------|------|
-| Frontend (current) | **Next.js 15 + TypeScript** (`vinology-web`, port 3001) |
-| Frontend (legacy) | React 17 CRA (`Vinology-client`) — kept for reference |
-| Backend | Rails **7.2** API (Ruby **3.3**), JWT, PORO JSON serializers |
-| Database | **PostgreSQL** (Postgres.app / Homebrew / Docker Compose) |
-| Packaging | Docker / Compose; also deployable via [vinology-kubernetes](https://github.com/ccdaniele/vinology-kubernetes) |
+| Frontend | **Next.js 15 + TypeScript** (`vinology-web`, port 3001) |
+| Backend | Rails **7.2** API (Ruby **3.3**), JWT |
+| Database | PostgreSQL |
+| VIN data | NHTSA vPIC + recalls / complaints / ratings |
+| Packaging | Root `docker compose` (API + web + DB) |
+
+Legacy CRA client lives in `Vinology-client/` (deprecated).
 
 ## Project layout
 
 ```text
-vinology-web/       Next.js + TypeScript SPA (port 3001) — primary UI
-Vinology-server/    Rails API (port 3000)
-Vinology-client/    Legacy CRA client (deprecated)
+docker-compose.yml   One-command demo stack
+vinology-web/        Next.js UI
+Vinology-server/     Rails API
+Vinology-client/     Legacy CRA (reference only)
 ```
 
-## Prerequisites
+## Run without Docker
 
-- Ruby **3.3.x** (see `Vinology-server/.ruby-version`)
-- Bundler
-- PostgreSQL running on `localhost:5432` (Postgres.app 18+ or Homebrew)
-- Node.js 20+ for `vinology-web`
+### Prerequisites
 
-## Run locally
+- Ruby **3.3.x** + Bundler
+- PostgreSQL on `localhost:5432` (Postgres.app is fine)
+- Node.js **20+**
 
-### Backend
+### API
 
 ```bash
 cd Vinology-server
-cp .env.example .env   # set JWT_SECRET / CORS_ORIGINS
-# Postgres.app: leave DB_USERNAME/DB_PASSWORD unset (uses your macOS user)
+cp .env.example .env
 bundle install
 bin/rails db:prepare db:seed
 bin/rails s
 ```
 
-Demo seed user: `demo` / `password`
-
-```bash
-bin/rails test   # auth + ownership smoke tests
-```
-
-### Frontend (Next.js)
+### UI
 
 ```bash
 cd vinology-web
@@ -84,47 +82,39 @@ npm run dev
 
 Open http://localhost:3001
 
-See `.env.example` for `NEXT_PUBLIC_API_BASE_URL` (defaults to `http://127.0.0.1:3000/api/v1`).
-
-## Run with Docker
-
-Client and server each have a `Dockerfile` and `docker-compose.yml`.
-
 ```bash
-# from Vinology-server
-docker compose up --build
-
-# from Vinology-client (point REACT_APP_API_* at the server)
-docker compose up --build
+cd Vinology-server && bin/rails test
 ```
 
-Published images used in the Kubernetes experiment: `ccdaniele/vin-client`, `ccdaniele/vinology-server`.
+## Deploy story (portfolio)
 
-## Related
+A practical split that stays cheap for a personal demo:
 
-- Kubernetes experiment: [vinology-kubernetes](https://github.com/ccdaniele/vinology-kubernetes)
-- Client image notes: [vinology-client-image](https://github.com/ccdaniele/vinology-client-image)
+| Piece | Typical host |
+|-------|----------------|
+| `vinology-web` | [Vercel](https://vercel.com) or Netlify — set `NEXT_PUBLIC_API_BASE_URL` to your API |
+| `Vinology-server` | [Render](https://render.com), Fly.io, or Railway — Postgres add-on + `JWT_SECRET`, `CORS_ORIGINS`, `DATABASE_URL` |
+| Secrets | Never commit `.env`; use the host’s env UI |
 
-## Repo hygiene
+Checklist before going public:
 
-Dependencies should be installed from the lockfile (`npm install` / `bundle install`), not committed. Local env files, SQLite databases, logs, and Rails secrets belong in `.gitignore`.
+1. Set a strong `JWT_SECRET`
+2. Restrict `CORS_ORIGINS` to your real UI origin(s)
+3. Use managed Postgres (not SQLite)
+4. Keep `VIN_LOOKUP_RATE_LIMIT` enabled
 
-## Versioning and releases
+Older Kubernetes notes: [vinology-kubernetes](https://github.com/ccdaniele/vinology-kubernetes).
 
-This repo follows a lightweight GitHub Flow:
+## Versioning
 
 | Practice | Convention |
 |----------|------------|
-| Default branch | `main` |
-| Feature work | Short-lived `feature/*` or `fix/*` branches → pull request into `main` |
-| Versions | [Semantic Versioning](https://semver.org) tags (`vMAJOR.MINOR.PATCH`) |
-| Releases | Annotated git tags + [GitHub Releases](https://github.com/ccdaniele/vinology-app/releases) |
+| Default branch | `main` (PR required) |
+| Feature work | `feature/*` → PR → `main` |
+| Versions | SemVer tags + GitHub Releases |
 
-**Legacy freeze:** [`v1.1.4`](https://github.com/ccdaniele/vinology-app/releases/tag/v1.1.4) is the last release of the original CRA + Rails 7 demo stack.
-
-**Next milestone:** `v2.0.0` will mark the first cut of the TypeScript Next.js + hardened Rails refresh.
-
-Do not push directly to `main` (branch protection requires a pull request). Prefer deleting the head branch after merge.
+- Legacy freeze: [`v1.1.4`](https://github.com/ccdaniele/vinology-app/releases/tag/v1.1.4)
+- Refresh milestone: tag **`v2.0.0`** after this Phase 4 PR merges to `main`
 
 ## License
 

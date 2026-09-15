@@ -45,8 +45,8 @@ export default function NewCarClient() {
       <p className="muted" style={{ margin: 0 }}>
         Decodes through free NHTSA vPIC data on the server, then loads recalls, complaint counts, and safety ratings when available.
       </p>
-      <form onSubmit={onSubmit} className="panel" style={{ display: 'grid', gap: '1rem' }}>
-        {error ? <p className="error">{error}</p> : null}
+      <form onSubmit={onSubmit} className="panel" style={{ display: 'grid', gap: '1rem' }} aria-busy={loading}>
+        {error ? <p className="error" role="alert">{error}</p> : null}
         <div className="field">
           <label htmlFor="vin">Vehicle identification number</label>
           <input
@@ -55,10 +55,16 @@ export default function NewCarClient() {
             value={vin}
             onChange={(e) => setVin(e.target.value.toUpperCase())}
             placeholder="JN8DR09Y82W703284"
+            autoComplete="off"
+            spellCheck={false}
             required
             disabled={loading}
+            aria-describedby="vin-help"
           />
         </div>
+        <p id="vin-help" className="muted" style={{ margin: 0, fontSize: '0.85rem' }}>
+          17-character VIN preferred. Partial VINs (11+) may still decode.
+        </p>
         <button className="btn" type="submit" disabled={loading}>
           {loading ? 'Decoding with NHTSA…' : 'Decode VIN'}
         </button>

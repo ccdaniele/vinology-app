@@ -1,24 +1,34 @@
+# One-command local demo stack: Postgres + Rails API + Next.js UI
+#
+#   docker compose up --build
+#
+# UI:  http://localhost:3001
+# API: http://localhost:3000
+# DB:  localhost:5433 (avoids clashing with a local Postgres.app on 5432)
+
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: vinology_development
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - vinology_postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d vinology_development"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 12
 
   api:
-    build: .
-    image: vinology-server
+    build:
+      context: ./Vinology-server
+      dockerfile: dockerfile
+    image: vinology-api
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -31,10 +41,25 @@ services:
       DB_NAME: vinology_development
       JWT_SECRET: development_docker_jwt_secret_change_me
       CORS_ORIGINS: http://localhost:3001,http://127.0.0.1:3001
+      VIN_LOOKUP_RATE_LIMIT: "60"
+      VIN_LOOKUP_RATE_PERIOD: "3600"
     depends_on:
       db:
         condition: service_healthy
     command: bash -c "bin/rails db:prepare db:seed && bin/rails s -b 0.0.0.0 -p 3000"
 
+  web:
+    build:
+      context: ./vinology-web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:3000/api/v1
+    image: vinology-web
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
 volumes:
-  postgres_data:
+  vinology_postgres:

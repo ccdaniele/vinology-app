@@ -1,3 +1,4 @@
+# Keep Docker build context lean.
 .bundle
 vendor/bundle
 log/*
@@ -10,3 +11,6 @@ storage/*
 *.sqlite3-*
 .DS_Store
 config/master.key
+.git
+spec
+test/tmp

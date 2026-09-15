@@ -2,8 +2,12 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Vinology',
-  description: 'Research a vehicle from its VIN — specs, saved queries, and PDF reports.',
+  title: {
+    default: 'Vinology',
+    template: '%s · Vinology',
+  },
+  description:
+    'Research a vehicle from its VIN using free NHTSA data — specs, recalls, saved queries, and PDF reports.',
 }
 
 export default function RootLayout({
@@ -13,7 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#main">
+          Skip to main content
+        </a>
+        {children}
+      </body>
     </html>
   )
 }
