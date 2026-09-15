@@ -1,46 +1,99 @@
-# About VINOLOGY
-VINOLOGY is an application designed to provide information about a vehicle based on the data associated with its VIN Number.
+# Vinology
 
-The VIN number serves as the social security number of a vehicle, every time that any procedure is carried out before a public entity, insurance company, purchase and sale of vehicles and even any major repair, this information can be associated with the VIN number.
+Full-stack app for researching a vehicle from its VIN.
 
-VINOLOGY extracts this information by connecting to 4 different APIs.
+A VIN is the vehicle’s permanent identifier. Titles, insurance events, sales, and major repairs often attach to it. Vinology helps you look that information up, organize it into queries, and export a PDF report.
 
-The frontend uses REACT-REDUX and has the responsibility of managing the UX and making requests to APIs. The backend uses RUBY ON RAILS / PSQL and is structured through 3 models (User, Query, Cars). The responsibility of the backend is the user authentication using JWT and store the information within the user's account.
+This is a personal project: a complete product with auth, saved research, reporting, and a path to real VIN data providers.
 
-In VINOLOGY, the user can create his/her account, create a query, add, edit and delete different vehicles to the query and check codes using the code searcher thats allows the user extract specifical information about the state of the vehicle. At the same time the user can make different types of reports, download them in PDF and save it in the user's account.
+Demo: https://youtu.be/oEXVyASkCEE
 
-VINOLOGY video example https://youtu.be/oEXVyASkCEE
+## What you can do
 
-# Requirements:
+- Create an account and sign in (JWT)
+- Create, edit, and delete **queries** (research sessions)
+- Add vehicles to a query by VIN
+- Review a report and download it as PDF
+- Look up brand / title codes in the code searcher
 
-## Server:
-- Ruby version +2.7 (set local version in the gemfile)
-- Ruby on rails
-- SQlite
+## VIN data integrations
 
-### Install / Update Gems
+The UI is built around four lookup types:
 
-```{console}
-$ bundle install 
-$ bundle update
+| Lookup | Purpose |
+|--------|---------|
+| Specifications | Make, model, year, engine, drivetrain, and related attributes |
+| Vehicle background / history | Title and odometer history |
+| Market value | Retail, trade, and auction-style values |
+| Salvage / brands | Brand codes and salvage-related status |
+
+**Today the client uses sample responses** so the product flow can be demoed without live API keys. The same client hooks (`getSpecifications`, `getHistory`, `getValue`, `getSalvage`) are where real VIN data providers would plug in.
+
+Auth, queries, cars, and PDF export talk to the real Rails API.
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Frontend | React 17, Redux, React Router, Bootstrap, jsPDF |
+| Backend | Rails 7 API (Ruby 3.1.2), JWT, Active Model Serializers |
+| Database | SQLite locally (Postgres available via Docker Compose) |
+| Packaging | Docker / Compose; also deployable via [vinology-kubernetes](https://github.com/ccdaniele/vinology-kubernetes) |
+
+## Project layout
+
+```text
+Vinology-client/   React SPA (port 3001)
+Vinology-server/   Rails API (port 3000)
 ```
 
-### Initialize Database
-```{console}
-$ rails db:create
-$ rails db:migrate
-```
-Seed Data
-```{console}
-$ rails db:seed
+## Run locally
+
+### Backend
+
+```bash
+cd Vinology-server
+bundle install
+bin/rails db:create db:migrate db:seed
+bin/rails s
 ```
 
-Run the Server
-```{console}
-$ rails s
+### Frontend
+
+```bash
+cd Vinology-client
+cp .env.example .env.development
+npm install
+npm start
 ```
-### Initialize and Serve Frontend
-```{console}
-$ npm install && update
-$ npm start
+
+See `.env.example` for API host/port defaults (`127.0.0.1:3000`, client on `3001`).
+
+Open http://localhost:3001
+
+## Run with Docker
+
+Client and server each have a `Dockerfile` and `docker-compose.yml`.
+
+```bash
+# from Vinology-server
+docker compose up --build
+
+# from Vinology-client (point REACT_APP_API_* at the server)
+docker compose up --build
 ```
+
+Published images used in the Kubernetes experiment: `ccdaniele/vin-client`, `ccdaniele/vinology-server`.
+
+## Related
+
+- Kubernetes experiment: [vinology-kubernetes](https://github.com/ccdaniele/vinology-kubernetes)
+- Client image notes: [vinology-client-image](https://github.com/ccdaniele/vinology-client-image)
+
+## Repo hygiene
+
+Dependencies should be installed from the lockfile (`npm install` / `bundle install`), not committed. Local env files, SQLite databases, logs, and Rails secrets belong in `.gitignore`.
+
+## License
+
+MIT. Sole author: Daniel Calderon.

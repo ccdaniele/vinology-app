@@ -1,1 +1,40 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.*
+!.env.example
 master.key
+*.pem
+*.key
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+build/
+dist/
+
+# Ruby / Rails
+.bundle/
+vendor/bundle/
+log/
+tmp/
+storage/
+*.sqlite3
+*.sqlite3-*
+config/master.key
+config/credentials.yml.enc.bak
+
+# Editors / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Coverage / test
+coverage/
+.nyc_output/
