@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { downloadSpecPdf } from '@/lib/pdf'
 import type { VinLookupReport } from '@/lib/types'
+import { VehicleReportView } from '@/components/VehicleReportView'
 
 type ReportPayload = VinLookupReport & {
   queryId: number
@@ -37,6 +38,15 @@ export default function ReportPage() {
     setError('')
     try {
       const s = payload.specification
+      const reportPayload: VinLookupReport = {
+        specification: s,
+        recalls: payload.recalls || [],
+        complaints_count: payload.complaints_count || 0,
+        safety_ratings: payload.safety_ratings || [],
+        source: payload.source || 'nhtsa',
+        decode_message: payload.decode_message || '',
+      }
+
       await api.createCar({
         query_id: payload.queryId,
         vin_number: s.vin,
@@ -52,6 +62,7 @@ export default function ReportPage() {
         transmission: s.transmission,
         drive_type: s.drive_type,
         engine: s.engine,
+        report_payload: reportPayload,
       })
       setSaved(true)
       sessionStorage.removeItem('vinology_report')
@@ -77,120 +88,44 @@ export default function ReportPage() {
     )
   }
 
-  const s = payload!.specification
-  const recalls = payload!.recalls || []
-  const ratings = payload!.safety_ratings || []
+  const report = payload!
 
   return (
-    <section className="rise" style={{ display: 'grid', gap: '1.25rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-        <div>
-          <h1 className="font-display" style={{ margin: 0, fontSize: '2rem' }}>
-            {s.year} {s.make}
-          </h1>
-          <p style={{ margin: '0.35rem 0 0' }}>{s.model}</p>
-          <p className="muted" style={{ margin: '0.35rem 0 0', fontSize: '0.85rem' }}>
-            Source: {payload!.source.toUpperCase()} · {payload!.decode_message}
-          </p>
-        </div>
-        <div className="vin-plate font-mono">{s.vin}</div>
-      </div>
-
-      {error ? <p className="error">{error}</p> : null}
-      {saved ? <p className="panel">Saved to your query.</p> : null}
-
-      <div className="panel" style={{ display: 'grid', gap: '0.65rem' }}>
-        {[
-          ['Trim', s.trim_level],
-          ['Body', s.style || s.body_class],
-          ['Engine', s.engine],
-          ['Fuel', s.fuel_type],
-          ['Transmission', s.transmission],
-          ['Drive', s.drive_type],
-          ['Brakes', s.anti_brake_system],
-          ['Seating', s.standard_seating],
-          ['Built', s.made_in],
-          ['Manufacturer', s.manufacturer],
-        ].map(([label, value]) => (
-          <div
-            key={String(label)}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '9rem 1fr',
-              gap: '0.75rem',
-              borderBottom: '1px solid var(--line)',
-              paddingBottom: '0.45rem',
-            }}
-          >
-            <span className="muted">{label}</span>
-            <span>{value || '—'}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="panel" style={{ display: 'grid', gap: '0.75rem' }}>
-        <h2 style={{ margin: 0, fontSize: '1.15rem' }}>Safety snapshot</h2>
-        <p className="muted" style={{ margin: 0 }}>
-          NHTSA consumer complaints on file for this make/model/year: <strong>{payload!.complaints_count}</strong>
-        </p>
-        {ratings.length === 0 ? (
-          <p className="muted" style={{ margin: 0 }}>No crash-test rating card matched for this vehicle.</p>
-        ) : (
-          ratings.map((rating) => (
-            <div key={`${rating.vehicle_id}-${rating.vehicle_description}`} style={{ display: 'grid', gap: '0.35rem' }}>
-              <strong>{rating.vehicle_description}</strong>
-              <span className="muted">
-                Overall {rating.overall_rating || '—'} · Front {rating.front_crash_rating || '—'} · Side{' '}
-                {rating.side_crash_rating || '—'} · Rollover {rating.rollover_rating || '—'}
-              </span>
-            </div>
-          ))
-        )}
-      </div>
-
-      <div className="panel" style={{ display: 'grid', gap: '0.75rem' }}>
-        <h2 style={{ margin: 0, fontSize: '1.15rem' }}>Recalls ({recalls.length})</h2>
-        {recalls.length === 0 ? (
-          <p className="muted" style={{ margin: 0 }}>No open recall campaigns returned for this configuration.</p>
-        ) : (
-          recalls.map((recall) => (
-            <article
-              key={recall.campaign_number || recall.summary}
-              style={{ borderTop: '1px solid var(--line)', paddingTop: '0.75rem', display: 'grid', gap: '0.35rem' }}
+    <>
+      {error ? <p className="error" style={{ marginBottom: '1rem' }}>{error}</p> : null}
+      {saved ? <p className="panel" style={{ marginBottom: '1rem' }}>Saved to your query.</p> : null}
+      <VehicleReportView
+        report={report}
+        actions={
+          <>
+            <button type="button" className="btn" onClick={saveCar} disabled={saving || saved}>
+              {saved ? 'Saved' : saving ? 'Saving…' : 'Save to query'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() =>
+                downloadSpecPdf(report.specification, {
+                  recalls: report.recalls,
+                  complaintsCount: report.complaints_count,
+                })
+              }
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <strong className="font-mono">{recall.campaign_number}</strong>
-                <span className="muted">{recall.report_received_date}</span>
-              </div>
-              <div>{recall.component}</div>
-              <p style={{ margin: 0, lineHeight: 1.5 }}>{recall.summary}</p>
-            </article>
-          ))
-        )}
-      </div>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <button type="button" className="btn" onClick={saveCar} disabled={saving || saved}>
-          {saved ? 'Saved' : saving ? 'Saving…' : 'Save to query'}
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => downloadSpecPdf(s, { recalls, complaintsCount: payload!.complaints_count })}
-        >
-          Download PDF
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          onClick={() => router.push(`/cars/new?queryId=${payload!.queryId}`)}
-        >
-          Another VIN
-        </button>
-        <Link href="/queries" className="btn btn-ghost">
-          My queries
-        </Link>
-      </div>
-    </section>
+              Download PDF
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => router.push(`/cars/new?queryId=${report.queryId}`)}
+            >
+              Another VIN
+            </button>
+            <Link href="/queries" className="btn btn-ghost">
+              My queries
+            </Link>
+          </>
+        }
+      />
+    </>
   )
 }

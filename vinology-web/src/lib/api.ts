@@ -114,7 +114,7 @@ export const api = {
     return request<Car>(`/cars/${id}`)
   },
 
-  createCar(payload: Partial<Car> & { query_id: number; vin_number: string }) {
+  createCar(payload: Partial<Car> & { query_id: number; vin_number: string; report_payload?: VinLookupReport }) {
     return request<Car>('/cars', {
       method: 'POST',
       body: JSON.stringify({ car: payload }),

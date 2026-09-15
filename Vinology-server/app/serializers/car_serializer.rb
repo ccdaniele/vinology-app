@@ -25,6 +25,7 @@ class CarSerializer
     adjustedAverageTrade
     averageMileage
     maxMileageAdj
+    report_payload
   ].freeze
 
   def initialize(car)
